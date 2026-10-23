@@ -11,26 +11,35 @@ metadata:
     scenarios.ai.sap.com/id: "material-management"
     ai.sap.com/version: "1.0.0"
 spec:
+  inputs:
+    parameters:
+      - name: resourcePlan
+        type: string
+        default: "infer.m"
   template:
-    apiVersion: serving.kserve.io/v1beta1
-    kind: InferenceService
+    apiVersion: "serving.kserve.io/v1beta1"
     metadata:
-      name: parser-service
-    spec:
+      annotations: |
+        autoscaling.knative.dev/metric: concurrency
+        autoscaling.knative.dev/target: 10
+      labels: |
+        ai.sap.com/resourcePlan: "{{inputs.parameters.resourcePlan}}"
+    spec: |
       predictor:
         minReplicas: 1
         maxReplicas: 2
         imagePullSecrets:
           - name: docker-hub-secret
         containers:
-          - image: "docker.io/btcecm/ronesans-parser:latest"
+          - name: kserve-container
+            image: docker.io/btcecm/ronesans-parser:latest
             ports:
               - containerPort: 8080
                 protocol: TCP
             resources:
               requests:
-                memory: "2Gi"
                 cpu: "1000m"
+                memory: "2Gi"
               limits:
-                memory: "4Gi"
                 cpu: "2000m"
+                memory: "4Gi"
