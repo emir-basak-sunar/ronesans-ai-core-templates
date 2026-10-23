@@ -34,11 +34,9 @@ spec:
           - name: kserve-container
             image: docker.io/btcecm/ronesans-rules:latest
             ports:
-              - containerPort: 8082
+              - containerPort: 8080
                 protocol: TCP
             env:
-              - name: PORT
-                value: "8082"
               - name: PARSER_URL
                 value: "https://api.ai.prod-eu20.westeurope.azure.ml.hana.ondemand.com/v2/inference/deployments/d4c3631d32997e38/v2/parse"
             resources:
