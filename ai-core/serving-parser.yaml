@@ -3,35 +3,37 @@ kind: ServingTemplate
 metadata:
   name: ronesans-parser-serving
   annotations:
-    scenarios.ai.sap.com/id: "material-management"
-    scenarios.ai.sap.com/name: "Ronesans Material Management"
-    scenarios.ai.sap.com/description: "ByT5 Deep Learning Material Parser"
+    scenarios.ai.sap.com/name: "material-management"
+    scenarios.ai.sap.com/description: "Ronesans Material Management"
     executables.ai.sap.com/name: "material-parser"
-    executables.ai.sap.com/description: "ByT5 Parser REST API"
-  labels:
-    scenarios.ai.sap.com/id: "material-management"
+    executables.ai.sap.com/description: "ByT5 Deep Learning Material Parser API"
     ai.sap.com/version: "1.0.0"
 spec:
-  imagePullSecrets:
-    - name: docker-hub-secret
+  inputs:
+    parameters: []
   template:
-    apiVersion: "serving.kserve.io/v1beta1"
+    apiVersion: serving.kserve.io/v1beta1
+    kind: InferenceService
+    metadata:
+      name: "{{.Labels.isvc}}"
+      annotations:
+        sidecar.istio.io/inject: "true"
     spec:
       predictor:
         minReplicas: 1
         maxReplicas: 2
-        imagePullSecrets:
-          - name: docker-hub-secret
         containers:
           - name: kserve-container
             image: "docker.io/btcecm/ronesans-parser:latest"
             ports:
               - containerPort: 8080
                 protocol: TCP
+            imagePullSecrets:
+              - name: docker-hub-secret
             resources:
               requests:
-                memory: "2Gi"
                 cpu: "1000m"
+                memory: "2Gi"
               limits:
-                memory: "4Gi"
                 cpu: "2000m"
+                memory: "4Gi"
