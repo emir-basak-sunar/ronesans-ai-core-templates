@@ -1,0 +1,40 @@
+apiVersion: ai.sap.com/v1alpha1
+kind: ServingTemplate
+metadata:
+  name: ronesans-parser-serving
+  annotations:
+    scenarios.ai.sap.com/id: "material-management"
+    scenarios.ai.sap.com/name: "Ronesans Material Management"
+    scenarios.ai.sap.com/description: "ByT5 Deep Learning Material Parser"
+    executables.ai.sap.com/name: "material-parser"
+    executables.ai.sap.com/description: "ByT5 Parser REST API"
+  labels:
+    scenarios.ai.sap.com/id: "material-management"
+    ai.sap.com/version: "1.0.0"
+spec:
+  imagePullSecrets:
+    - name: docker-hub-secret
+  template:
+    apiVersion: "serving.kserve.io/v1beta1"
+    metadata:
+      annotations:
+        autoscaling.knative.dev/target: "10"
+    spec:
+      predictor:
+        minReplicas: 1
+        maxReplicas: 2
+        imagePullSecrets:
+          - name: docker-hub-secret
+        containers:
+          - name: kserve-container
+            image: "docker.io/btcecm/ronesans-parser:latest"
+            ports:
+              - containerPort: 8080
+                protocol: TCP
+            resources:
+              requests:
+                memory: "2Gi"
+                cpu: "1000m"
+              limits:
+                memory: "4Gi"
+                cpu: "2000m"
