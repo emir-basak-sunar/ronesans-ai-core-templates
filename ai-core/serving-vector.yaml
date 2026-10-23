@@ -3,35 +3,37 @@ kind: ServingTemplate
 metadata:
   name: ronesans-vector-serving
   annotations:
-    scenarios.ai.sap.com/id: "material-management"
-    scenarios.ai.sap.com/name: "Ronesans Material Management"
-    scenarios.ai.sap.com/description: "Vector Embedding and pgvector Service"
+    scenarios.ai.sap.com/name: "material-management"
+    scenarios.ai.sap.com/description: "Ronesans Material Management"
     executables.ai.sap.com/name: "vector-service"
     executables.ai.sap.com/description: "Embedding and pgvector Search REST API"
-  labels:
-    scenarios.ai.sap.com/id: "material-management"
     ai.sap.com/version: "1.0.0"
 spec:
-  imagePullSecrets:
-    - name: docker-hub-secret
+  inputs:
+    parameters: []
   template:
-    apiVersion: "serving.kserve.io/v1beta1"
+    apiVersion: serving.kserve.io/v1beta1
+    kind: InferenceService
+    metadata:
+      name: "{{.Labels.isvc}}"
+      annotations:
+        sidecar.istio.io/inject: "true"
     spec:
       predictor:
         minReplicas: 1
         maxReplicas: 2
-        imagePullSecrets:
-          - name: docker-hub-secret
         containers:
           - name: kserve-container
             image: "docker.io/btcecm/ronesans-vector:latest"
             ports:
               - containerPort: 8081
                 protocol: TCP
+            imagePullSecrets:
+              - name: docker-hub-secret
             resources:
               requests:
-                memory: "1Gi"
                 cpu: "500m"
+                memory: "1Gi"
               limits:
-                memory: "2Gi"
                 cpu: "1000m"
+                memory: "2Gi"
